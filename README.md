@@ -1,3 +1,4 @@
-# RabbitMQ Playground
+Dell Training project
 
-.NET Core RabbitMQ sandbox
+Technologies: RabbitMQ + MassTransit, MongoDB, XUnit
+Testing: Functional + Unit Testing
