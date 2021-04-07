@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RabbitMQPlayground.Domain\RabbitMQPlayground.Domain.csproj" />
+    <ProjectReference Include="..\RabbitMQPlayground.Helpers\RabbitMQPlayground.Helpers.csproj" />
+  </ItemGroup>
+</Project>
