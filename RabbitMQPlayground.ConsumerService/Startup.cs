@@ -1,3 +1,4 @@
+using GreenPipes;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,14 +7,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 using RabbitMQPlayground.CompositionRoot;
+using RabbitMQPlayground.ConsumerService.Consumers;
+using RabbitMQPlayground.ConsumerService.Extensions;
 using RabbitMQPlayground.DataLayer.Common;
 using RabbitMQPlayground.Helpers;
+using RabbitMQPlayground.Helpers.Constants;
 using RabbitMQPlayground.Logic.RabbitMQ;
-using Serilog;
 using System;
 
-namespace RabbitMQPlayground.API
+namespace RabbitMQPlayground.ConsumerService
 {
     public class Startup
     {
@@ -26,10 +30,13 @@ namespace RabbitMQPlayground.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
+            services.AddAutoMapper(GetType().Assembly);
             // Add MassTransit to the service collection
             services.AddMassTransit(cfg =>
             {
+                cfg.AddConsumer<BookConsumer>();
+                cfg.AddConsumer<UserConsumer>();
+
                 cfg.UsingRabbitMq((provider, cfg) =>
                 {
                     cfg.UseHealthCheck(provider);
@@ -37,6 +44,21 @@ namespace RabbitMQPlayground.API
                     {
                         h.Username(AppConfigurationBuilder.Instance.RabbitMQSettings.User);
                         h.Password(AppConfigurationBuilder.Instance.RabbitMQSettings.Password);
+                    });
+
+                    cfg.ReceiveEndpoint(RabbitMQConstants.BooksQueue, e =>
+                    {
+                        e.PrefetchCount = 16;
+                        e.UseMessageRetry(x => x.Interval(2, 100));
+                        e.ConfigureConsumer<BookConsumer>(provider);
+                        e.ExchangeType = ExchangeType.Direct;
+                    });
+
+                    cfg.ReceiveEndpoint(RabbitMQConstants.UsersQueue, e =>
+                    {
+                        e.PrefetchCount = 16;
+                        e.UseMessageRetry(x => x.Interval(2, 100));
+                        e.ConfigureConsumer<UserConsumer>(provider);
                     });
                 });
             });
@@ -48,6 +70,7 @@ namespace RabbitMQPlayground.API
 
             // Register hosted service using the interface type IHostedService to start/stop the bus with the application
             services.AddSingleton<IHostedService, BusService>();
+
             services.AddSingleton<ICompositionRoot, CompositionRootBackend>();
 
             services.AddSwaggerGen(c =>
@@ -79,7 +102,6 @@ namespace RabbitMQPlayground.API
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "RabbitMQPlayground API");
             });
 
-            app.UseSerilogRequestLogging();
             app.UseRouting();
             app.UseCors(p => p.AllowAnyOrigin()
                                   .AllowAnyMethod()
@@ -89,6 +111,17 @@ namespace RabbitMQPlayground.API
             {
                 endpoint.MapControllers();
             });
+
+            app.UseMongoCustomIndexes();
+        }
+
+        private static ServiceProvider ConfigureServiceProvider()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddHttpClient();
+
+            return serviceCollection.BuildServiceProvider();
         }
     }
 }

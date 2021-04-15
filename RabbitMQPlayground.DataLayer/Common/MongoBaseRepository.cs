@@ -20,7 +20,7 @@ namespace RabbitMQPlayground.DataLayer.Common
         public async Task<TEntity> CreateAsync(TEntity obj)
         {
             await _collection.InsertOneAsync(obj);
-            if (obj.Id == ObjectId.Empty)
+            if (obj.Id == string.Empty)
             {
                 return null;
             }
@@ -55,7 +55,7 @@ namespace RabbitMQPlayground.DataLayer.Common
             return result;
         }
 
-        public async Task<TEntity> GetByIdAsync(ObjectId objId)
+        public async Task<TEntity> GetByIdAsync(string objId)
         {
             var taskResult = await _collection.FindAsync(x => x.Id == objId);
             var result = taskResult.FirstOrDefault();

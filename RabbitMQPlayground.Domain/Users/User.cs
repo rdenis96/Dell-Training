@@ -1,15 +1,20 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using Newtonsoft.Json;
 using RabbitMQPlayground.Domain.Common;
+using RabbitMQPlayground.Domain.Converters;
 using System;
 
 namespace RabbitMQPlayground.Domain.Users
 {
+    [Serializable]
     public class User : IUser, IMongoEntity, IEquatable<User>
     {
-        [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
-        public ObjectId Id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [JsonConverter(typeof(ObjectIdConverter))]
+        public string Id { get; set; }
 
         public string Username { get; set; }
         public string Password { get; set; }

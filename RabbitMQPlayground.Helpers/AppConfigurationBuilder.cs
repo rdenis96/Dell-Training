@@ -30,6 +30,8 @@ namespace RabbitMQPlayground.Helpers
 
         public IConfigurationRoot Config { get; }
 
+        public string RepositoryUrl { get { return Config.GetSection(nameof(RepositoryUrl)).Value; } }
+
         public MongoSettings MongoSettings
         {
             get

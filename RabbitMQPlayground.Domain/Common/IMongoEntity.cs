@@ -1,8 +1,6 @@
-﻿using MongoDB.Bson;
-
-namespace RabbitMQPlayground.Domain.Common
+﻿namespace RabbitMQPlayground.Domain.Common
 {
-    public interface IMongoEntity : IEntity<ObjectId>
+    public interface IMongoEntity : IEntity<string>
     {
     }
 }

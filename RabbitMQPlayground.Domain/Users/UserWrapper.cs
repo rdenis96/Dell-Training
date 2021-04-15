@@ -2,44 +2,38 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json;
-using RabbitMQPlayground.Domain.Common;
 using RabbitMQPlayground.Domain.Converters;
 using System;
 
-namespace RabbitMQPlayground.Domain.Books
+namespace RabbitMQPlayground.Domain.Users
 {
-    [Serializable]
-    public class Book : IBook, IMongoEntity, IEquatable<Book>
+    public class UserWrapper : IUserWrapper
     {
+        [BsonIgnoreIfDefault]
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonRepresentation(BsonType.ObjectId)]
         [JsonConverter(typeof(ObjectIdConverter))]
         public string Id { get; set; }
 
-        public string Date { get; set; }
-
-        public int PagesCount { get; set; }
-
-        public string Title { get; set; }
-        public string Category { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as Book);
+            return Equals(obj as User);
         }
 
-        public bool Equals(Book other)
+        public bool Equals(User other)
         {
             return other != null &&
                    Id.Equals(other.Id) &&
-                   Date == other.Date &&
-                   PagesCount == other.PagesCount &&
-                   Title == other.Title;
+                   Username == other.Username &&
+                   Password == other.Password;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Date, PagesCount, Title);
+            return HashCode.Combine(Id, Username, Password);
         }
     }
 }

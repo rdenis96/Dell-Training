@@ -1,18 +1,22 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Logging;
+using RabbitMQPlayground.DataLayer.Common;
 using RabbitMQPlayground.Domain.Books;
-using RabbitMQPlayground.Logic.Books.Services;
+using RabbitMQPlayground.Logic.Books;
 using System;
 using System.Threading.Tasks;
 
-namespace RabbitMQPlayground.Logic.Services.Books.Consumers
+namespace RabbitMQPlayground.ConsumerService.Consumers
 {
     public class BookConsumer : IConsumer<IBook>
     {
         private readonly IBookService _bookService;
+        private readonly ILogger<BookConsumer> _logger;
 
-        public BookConsumer(IBookService bookService)
+        public BookConsumer(ICompositionRoot compositionRoot, ILogger<BookConsumer> logger)
         {
-            _bookService = bookService;
+            _bookService = compositionRoot.GetImplementation<IBookService>();
+            _logger = logger;
         }
 
         public async Task Consume(ConsumeContext<IBook> context)
@@ -27,7 +31,14 @@ namespace RabbitMQPlayground.Logic.Services.Books.Consumers
 
             Console.WriteLine($"Received: book {context.Message.Title} with {context.Message.PagesCount} pages written on {context.Message.Date}");
 
-            await _bookService.Add(book);
+            try
+            {
+                await _bookService.Add(book);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
     }
 }

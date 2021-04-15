@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 
-namespace RabbitMQPlayground.API
+namespace RabbitMQPlayground.ConsumerService
 {
     public class Program
     {

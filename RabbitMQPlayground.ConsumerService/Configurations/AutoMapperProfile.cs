@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RabbitMQPlayground.Domain.Users;
 
-namespace RabbitMQPlayground.API.Configurations
+namespace RabbitMQPlayground.ConsumerService.Configurations
 {
     public class AutoMapperProfile : Profile
     {

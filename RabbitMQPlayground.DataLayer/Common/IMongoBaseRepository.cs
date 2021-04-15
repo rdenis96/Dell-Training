@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using RabbitMQPlayground.Domain.Common;
+﻿using RabbitMQPlayground.Domain.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,7 +14,7 @@ namespace RabbitMQPlayground.DataLayer.Common
 
         Task<long> GetDocumentCountAsync();
 
-        Task<TEntity> GetByIdAsync(ObjectId objId);
+        Task<TEntity> GetByIdAsync(string objId);
 
         Task<TEntity> UpdateAsync(TEntity obj);
 

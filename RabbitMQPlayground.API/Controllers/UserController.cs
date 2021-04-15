@@ -1,8 +1,10 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RabbitMQPlayground.API.Models;
+using RabbitMQPlayground.DataLayer.Common;
 using RabbitMQPlayground.Domain.Users;
-using RabbitMQPlayground.Logic.Users.Services;
+using RabbitMQPlayground.Logic.Users;
 using System.Threading.Tasks;
 
 namespace RabbitMQPlayground.API.Controllers
@@ -13,11 +15,13 @@ namespace RabbitMQPlayground.API.Controllers
     {
         private readonly IBus _bus;
         private readonly IUserService _userService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IBus bus, IUserService userService)
+        public UserController(IBus bus, ICompositionRoot compositionRoot, ILogger<UserController> logger)
         {
             _bus = bus;
-            _userService = userService;
+            _userService = compositionRoot.GetImplementation<IUserService>();
+            _logger = logger;
         }
 
         [HttpPost("[action]")]
@@ -28,9 +32,9 @@ namespace RabbitMQPlayground.API.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<OkResult> Update([FromBody] IUserWrapper user)
+        public async Task<OkResult> Update([FromBody] UserWrapper user)
         {
-            await _bus.Publish(user);
+            await _bus.Publish<IUserWrapper>(user);
             return Ok();
         }
 

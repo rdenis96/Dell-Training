@@ -1,8 +1,10 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RabbitMQPlayground.API.Models;
+using RabbitMQPlayground.DataLayer.Common;
 using RabbitMQPlayground.Domain.Books;
-using RabbitMQPlayground.Logic.Books.Services;
+using RabbitMQPlayground.Logic.Books;
 using System.Threading.Tasks;
 
 namespace RabbitMQPlayground.API.Controllers
@@ -13,11 +15,13 @@ namespace RabbitMQPlayground.API.Controllers
     {
         private readonly IBus _bus;
         private readonly IBookService _bookService;
+        private readonly ILogger<BookController> _logger;
 
-        public BookController(IBus bus, IBookService bookService)
+        public BookController(IBus bus, ICompositionRoot compositionRoot, ILogger<BookController> logger)
         {
             _bus = bus;
-            _bookService = bookService;
+            _bookService = compositionRoot.GetImplementation<IBookService>();
+            _logger = logger;
         }
 
         [HttpPost]
@@ -35,7 +39,7 @@ namespace RabbitMQPlayground.API.Controllers
         [ProducesResponseType(typeof(Book), 200)]
         public async Task<ActionResult> GetBookByTitle([FromQuery] string title)
         {
-            Book result = await _bookService.GetByTitleAsync(title);
+            var result = await _bookService.GetByTitleAsync(title);
             return Ok(result);
         }
     }
